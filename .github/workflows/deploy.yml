@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -28,7 +28,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Hetzner
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Prepare directory on Hetzner
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            mkdir -p ~/spaigi-backend
+
+      - name: Upload backend files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          target: ~/spaigi-backend
+          overwrite: true
+          source: >-
+            Dockerfile,
+            docker-compose.yml,
+            pom.xml,
+            src,
+            .dockerignore,
+            .env.example,
+            README.md
+
+      - name: Start backend on Hetzner
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -37,6 +67,6 @@ jobs:
           script: |
             set -e
             cd ~/spaigi-backend
-            git pull origin main
+            test -f .env
             docker compose up -d --build
             docker image prune -f
