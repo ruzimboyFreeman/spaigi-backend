@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: spaigi-backend
+  config:
+    import: optional:file:.env[.properties]
+
+contact:
+  email:
+    resend-api-key: ${RESEND_API_KEY:}
+    from: ${CONTACT_FROM_EMAIL:}
+    to: ${CONTACT_TO_EMAIL:contact@spaigi.uz}
+    subject-prefix: ${CONTACT_SUBJECT_PREFIX:SPAIGI Website}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

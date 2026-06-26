@@ -1,0 +1,6 @@
+.env
+.m2
+target
+*.log
+.DS_Store
+.idea
